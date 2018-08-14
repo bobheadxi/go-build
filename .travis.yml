@@ -1,0 +1,17 @@
+language: go
+go:
+  - "1.10"
+services:
+  - docker
+
+install:
+  - go get github.com/golang/dep/cmd/dep
+  - dep ensure -v
+  - docker pull docker/compose:1.22.0
+  - docker pull gliderlabs/herokuish:v0.4.3
+
+script:
+  - go test -race -coverprofile=coverage.txt ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
