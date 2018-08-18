@@ -15,7 +15,6 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/ubclaunchpad/inertia/daemon/inertiad/cfg"
 	"github.com/ubclaunchpad/inertia/daemon/inertiad/containers"
-	"github.com/ubclaunchpad/inertia/daemon/inertiad/log"
 )
 
 // ProjectBuilder builds projects and returns a callback that can be used to deploy the project.
@@ -234,7 +233,7 @@ func (b *Builder) dockerBuild(d Config, cli *docker.Client,
 		return nil, err
 	}
 	stop := make(chan struct{})
-	log.FlushRoutine(out, buildResp.Body, stop)
+	flushRoutine(out, buildResp.Body, stop)
 	close(stop)
 	buildResp.Body.Close()
 	// Get image details - this will check if image build was successful
