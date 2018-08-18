@@ -15,12 +15,11 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 	"github.com/stretchr/testify/assert"
-	"github.com/ubclaunchpad/inertia/daemon/inertiad/cfg"
 	"github.com/ubclaunchpad/inertia/daemon/inertiad/containers"
 )
 
 func TestNewBuilder(t *testing.T) {
-	b := NewBuilder(cfg.Config{}, nil)
+	b := NewBuilder(BuilderConfig{}, nil)
 	assert.NotNil(t, b)
 }
 
@@ -90,8 +89,7 @@ func TestBuilder_Build(t *testing.T) {
 					os.Getenv("GOPATH"),
 					"/src/github.com/ubclaunchpad/inertia/test/build/"+tt.args.buildType,
 				)
-				b = NewBuilder(cfg.Config{
-					ProjectDirectory:     testProjectDir,
+				b = NewBuilder(BuilderConfig{
 					DockerComposeVersion: DockerComposeVersion,
 					HerokuishVersion:     HerokuishVersion,
 				}, killTestContainers)

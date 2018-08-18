@@ -13,7 +13,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"github.com/ubclaunchpad/inertia/daemon/inertiad/cfg"
 	"github.com/ubclaunchpad/inertia/daemon/inertiad/containers"
 )
 
@@ -32,7 +31,7 @@ type Builder struct {
 }
 
 // NewBuilder creates a builder with given configuration
-func NewBuilder(conf cfg.Config, stopper containers.ContainerStopper) *Builder {
+func NewBuilder(conf BuilderConfig, stopper containers.ContainerStopper) *Builder {
 	b := &Builder{
 		buildStageName:       "build",
 		dockerComposeVersion: conf.DockerComposeVersion,
