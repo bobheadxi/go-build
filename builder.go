@@ -13,7 +13,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	docker "github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"github.com/ubclaunchpad/inertia/daemon/inertiad/containers"
 )
 
 // ProjectBuilder builds projects and returns a callback that can be used to deploy the project.
@@ -25,18 +24,16 @@ type Builder struct {
 	buildStageName       string
 	dockerComposeVersion string
 	herokuishVersion     string
-	stopper              containers.ContainerStopper
 
 	builders map[string]ProjectBuilder
 }
 
 // NewBuilder creates a builder with given configuration
-func NewBuilder(conf BuilderConfig, stopper containers.ContainerStopper) *Builder {
+func NewBuilder(conf BuilderConfig) *Builder {
 	b := &Builder{
 		buildStageName:       "build",
 		dockerComposeVersion: conf.DockerComposeVersion,
 		herokuishVersion:     conf.HerokuishVersion,
-		stopper:              stopper,
 	}
 	b.builders = map[string]ProjectBuilder{
 		"herokuish":      b.herokuishBuild,
@@ -49,21 +46,6 @@ func NewBuilder(conf BuilderConfig, stopper containers.ContainerStopper) *Builde
 // GetBuildStageName returns the name of the intermediary container used to
 // build projects
 func (b *Builder) GetBuildStageName() string { return b.buildStageName }
-
-// StopContainers stops containers and cleans up assets
-func (b *Builder) StopContainers(docker *docker.Client, out io.Writer) error {
-	return b.stopper(docker, out)
-}
-
-// Prune cleans up Dokcer assets
-func (b *Builder) Prune(docker *docker.Client, out io.Writer) error {
-	return containers.Prune(docker)
-}
-
-// PruneAll forcibly removes Docker assets
-func (b *Builder) PruneAll(docker *docker.Client, out io.Writer) error {
-	return containers.PruneAll(docker, b.dockerComposeVersion, b.herokuishVersion)
-}
 
 // Config contains parameters required for builds to execute
 type Config struct {
@@ -152,7 +134,7 @@ func (b *Builder) dockerCompose(d Config, cli *docker.Client,
 
 	// Start container to build project
 	reportProjectBuildBegin(d.Name, out)
-	if err := containers.StartAndWait(cli, resp.ID, out); err != nil {
+	if err := startAndWait(cli, resp.ID, out); err != nil {
 		return nil, err
 	}
 	reportProjectBuildComplete(d.Name, out)
@@ -304,7 +286,7 @@ func (b *Builder) herokuishBuild(d Config, cli *docker.Client,
 
 	// Start the herokuish container to build project
 	reportProjectBuildBegin(d.Name, out)
-	if err := containers.StartAndWait(cli, resp.ID, out); err != nil {
+	if err := startAndWait(cli, resp.ID, out); err != nil {
 		return nil, err
 	}
 	reportProjectBuildComplete(d.Name, out)

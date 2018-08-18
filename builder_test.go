@@ -15,11 +15,10 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 	"github.com/stretchr/testify/assert"
-	"github.com/ubclaunchpad/inertia/daemon/inertiad/containers"
 )
 
 func TestNewBuilder(t *testing.T) {
-	b := NewBuilder(BuilderConfig{}, nil)
+	b := NewBuilder(BuilderConfig{})
 	assert.NotNil(t, b)
 }
 
@@ -71,7 +70,7 @@ func TestBuilder_Build(t *testing.T) {
 	}
 
 	// Setup
-	cli, err := containers.NewDockerClient()
+	cli, err := NewDockerClient()
 	assert.Nil(t, err)
 	defer cli.Close()
 
@@ -92,7 +91,7 @@ func TestBuilder_Build(t *testing.T) {
 				b = NewBuilder(BuilderConfig{
 					DockerComposeVersion: DockerComposeVersion,
 					HerokuishVersion:     HerokuishVersion,
-				}, killTestContainers)
+				})
 				out = os.Stdout
 			)
 
